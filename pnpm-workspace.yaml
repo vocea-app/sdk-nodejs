@@ -1,0 +1,5 @@
+# tsup compila con esbuild, que necesita ejecutar su script de instalación para
+# colocar el binario nativo. Sin esta autorización pnpm lo bloquea y el build
+# falla con ERR_PNPM_IGNORED_BUILDS.
+allowBuilds:
+  esbuild: true

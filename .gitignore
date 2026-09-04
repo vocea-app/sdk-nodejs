@@ -1,2 +1,8 @@
 node_modules
 dist
+
+# Temporal que genera pnpm al configurar el registro
+.npmrc.tmp
+
+# Artefactos de npm pack
+*.tgz
