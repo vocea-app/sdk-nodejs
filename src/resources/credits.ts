@@ -12,15 +12,18 @@ export interface Transaction {
 export class CreditsResource {
   constructor(private http: HttpClient) {}
 
+  /** Lista los paquetes de recarga disponibles. */
   listPackages(): Promise<CreditPackage[]> {
     return this.http.request("GET", "/credits/packages");
   }
 
+  /** Inicia el checkout de un paquete. Devuelve la URL de pago. */
   checkout(package_id: string, success_url?: string): Promise<CheckoutResponse> {
     const query = success_url ? { success_url } : undefined;
     return this.http.request("POST", "/credits/checkout", { json: { package_id }, query });
   }
 
+  /** Lista el historial de transacciones del usuario autenticado. */
   listTransactions(params?: PaginationParams & { type?: Transaction["type"] }): Promise<PaginatedResponse<Transaction>> {
     return this.http.request("GET", "/credits/transactions", { query: params });
   }

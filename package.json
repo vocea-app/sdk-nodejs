@@ -1,6 +1,6 @@
 {
   "name": "@vocea.app/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Official Vocea SDK for Node.js/TypeScript",
   "author": "vocea.app",
   "repository": {

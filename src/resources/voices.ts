@@ -13,6 +13,12 @@ export interface ListPublicVoicesParams extends PaginationParams {
   ageRange?: "young" | "adult" | "senior";
 }
 
+export interface VoiceEarnings {
+  earnings: { month: string; creditsEarned: number }[];
+  creditsEarnedTotal: number;
+  timesUsed: number;
+}
+
 export class VoicesResource {
   constructor(private http: HttpClient) {}
 
@@ -58,7 +64,7 @@ export class VoicesResource {
     return this.http.request("POST", `/voices/${id}/request-public`);
   }
 
-  earnings(id: string): Promise<{ earnings: { month: string; creditsEarned: number }[]; creditsEarnedTotal: number; timesUsed: number }> {
+  earnings(id: string): Promise<VoiceEarnings> {
     return this.http.request("GET", `/voices/${id}/earnings`);
   }
 
