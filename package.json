@@ -28,7 +28,9 @@
   "scripts": {
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "release": "sh scripts/publish.sh",
+    "release:dry": "sh scripts/publish.sh --dry-run --no-git-checks"
   },
   "keywords": [
     "vocea",

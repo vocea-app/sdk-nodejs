@@ -1,6 +1,10 @@
 node_modules
 dist
 
+# Credenciales de publicación. NUNCA versionar: contiene NPM_AUTH_TOKEN.
+.env
+.env.local
+
 # Temporal que genera pnpm al configurar el registro
 .npmrc.tmp
 
