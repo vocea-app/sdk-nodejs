@@ -29,6 +29,9 @@
     "build": "tsup src/index.ts --format cjs,esm --dts",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "lint": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "release": "sh scripts/publish.sh",
     "release:dry": "sh scripts/publish.sh --dry-run --no-git-checks"
   },
@@ -41,7 +44,10 @@
   ],
   "devDependencies": {
     "@types/node": "^25.7.0",
+    "@vitest/coverage-v8": "^5.0.0",
     "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vite": "^8.2.2",
+    "vitest": "^5.0.0"
   }
 }
