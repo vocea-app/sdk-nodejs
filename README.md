@@ -624,6 +624,21 @@ import type {
 
 ---
 
+## Publishing (maintainers)
+
+The npm token lives in `.env` (git-ignored), not in the repo's `.npmrc`:
+pnpm deliberately ignores registry credentials that expand environment
+variables from a project `.npmrc`, because that file is committed.
+`scripts/publish.sh` injects it into a temporary `.npmrc` outside the repo.
+
+```bash
+cp .env.example .env   # then fill in NPM_AUTH_TOKEN
+pnpm run release:dry   # packs without publishing
+pnpm run release       # publishes
+```
+
+---
+
 ## License
 
 MIT — [vocea.app](https://vocea.app)
