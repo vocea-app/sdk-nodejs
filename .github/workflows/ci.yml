@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: Typecheck, lint, tests y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      - name: Chequeo de tipos
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      # VOCEA_API_KEY no se define aquí: los e2e se saltan solos.
+      - name: Tests con cobertura
+        run: pnpm run test:coverage
+
+      - name: Verificar el paquete construido
+        run: pnpm run verify:dist
