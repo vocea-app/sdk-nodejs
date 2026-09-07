@@ -564,6 +564,11 @@ try {
 
 All types are exported from the package root.
 
+> **Cambio en 0.2.0:** `Voice.creditsEarnedTotal` pasa de `number` a `string`.
+> La API siempre devolvió un decimal serializado (`"0.00000000"`); el tipo
+> anterior era incorrecto. Usa `Number(voice.creditsEarnedTotal)` para operar.
+> `Voice.langSet` queda deprecado: la API ya no lo envía.
+
 ```typescript
 import type {
   // Client

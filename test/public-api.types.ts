@@ -7,7 +7,8 @@ import type {
   PaginatedResponse, PaginationParams, RegisterRequest, Transaction,
   Transcription, TranscribeResponse, TtsConfig, TtsLanguage, TtsModel,
   UpdateVoiceMetadataRequest, UsdBalance, User, Voice, VoiceAgeRange,
-  VoiceEarnings, VoiceSettings, VoiceStatus, VoceaErrorBody,
+  VoiceEarnings, VoiceGender, VoiceProvider, VoiceSettings, VoiceStatus,
+  VoceaErrorBody,
 } from "../src/index.js";
 
 export type SuperficieDeTipos = {
@@ -39,6 +40,8 @@ export type SuperficieDeTipos = {
   voice: Voice;
   voiceAgeRange: VoiceAgeRange;
   voiceEarnings: VoiceEarnings;
+  voiceGender: VoiceGender;
+  voiceProvider: VoiceProvider;
   voiceSettings: VoiceSettings;
   voiceStatus: VoiceStatus;
   voceaErrorBody: VoceaErrorBody;

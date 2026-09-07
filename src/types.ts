@@ -46,6 +46,10 @@ export interface TtsModel {
   id: string;
   name: string;
   description: string | null;
+  /** Proveedor que sirve este modelo (Inworld, Minimax, ElevenLabs). */
+  providerId: string;
+  /** Límite de caracteres por generación para este modelo. */
+  maxCharacters: number;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
@@ -67,28 +71,61 @@ export interface TtsConfig {
 
 export type VoiceStatus = "pending" | "active" | "failed";
 export type VoiceAgeRange = "young" | "adult" | "senior";
+export type VoiceGender = "male" | "female" | "neutral";
+
+/**
+ * Estado de la voz en cada proveedor TTS. La API devuelve estas claves en
+ * snake_case, a diferencia del resto de la respuesta: se respeta tal cual para
+ * no mentir sobre el JSON que llega.
+ */
+export interface VoiceProvider {
+  provider_id: string;
+  /** `inworld` (Standard), `minimax` (Premium), `elevenlabs` (Studio). */
+  name: string;
+  is_enabled: boolean;
+  /** La voz está físicamente clonada en este proveedor y se puede usar. */
+  is_cloned: boolean;
+  last_used_at: string | null;
+  has_sample_preview: boolean;
+}
 
 export interface Voice {
   id: string;
   name: string;
   status: VoiceStatus;
   failureReason: string | null;
-  langSet: "full" | "lite" | null;
+  /** Duración en segundos del audio usado para clonar. */
+  cloneAudioDuration: number;
+  languageCode: string;
   countryId: string | null;
   regionId: string | null;
   ageRange: VoiceAgeRange | null;
+  gender: VoiceGender | null;
   country: { id: string; name: string; code: string } | null;
   region: { id: string; name: string } | null;
   isPublicRequest: boolean;
   isPublic: boolean;
   timesUsed: number;
-  creditsEarnedTotal: number;
+  /**
+   * Decimal serializado como string por el ORM (p. ej. `"0.00000000"`).
+   * Conviértelo con `Number(...)` antes de operar.
+   */
+  creditsEarnedTotal: string;
   publicRejectReason: string | null;
   hasSamplePreview: boolean;
   isFavorited: boolean;
   favoritesCount: number;
+  /** Estado de la voz en cada proveedor TTS. */
+  providers: VoiceProvider[];
+  lastUsedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
+  /**
+   * @deprecated La API dejó de enviarlo. Se mantiene opcional por si algún
+   * endpoint no auditado todavía lo incluye.
+   */
+  langSet?: "full" | "lite" | null;
 }
 
 export interface CloneVoiceRequest {
@@ -211,6 +248,8 @@ export interface PaginatedResponse<T> {
   total: number;
   page: number;
   limit: number;
+  /** Número total de páginas para `limit`. */
+  totalPages: number;
 }
 
 export interface PaginationParams {
