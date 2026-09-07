@@ -1,5 +1,6 @@
 node_modules
 dist
+coverage
 
 # Credenciales de publicación. NUNCA versionar: contiene NPM_AUTH_TOKEN.
 .env

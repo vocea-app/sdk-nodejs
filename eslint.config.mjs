@@ -1,4 +1,4 @@
-// eslint.config.js
+// eslint.config.mjs
 import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
@@ -31,10 +31,10 @@ export default tseslint.config(
     },
   },
   {
-    // eslint.config.js no está cubierto por el tsconfig.json del proyecto
+    // eslint.config.mjs no está cubierto por el tsconfig.json del proyecto
     // (su "include" es src/test/e2e/vitest configs), así que projectService
     // no puede tipar este fichero. Se lintea sin reglas basadas en tipos.
-    files: ["eslint.config.js"],
+    files: ["eslint.config.mjs"],
     ...tseslint.configs.disableTypeChecked,
   },
 );
