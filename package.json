@@ -34,6 +34,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "vitest run --config vitest.e2e.config.ts",
     "release": "sh scripts/publish.sh",
     "release:dry": "sh scripts/publish.sh --dry-run --no-git-checks",
     "verify:dist": "sh scripts/verify-dist.sh"
