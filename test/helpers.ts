@@ -28,7 +28,7 @@ export function mockFetch(respuesta: MockRespuesta = {}): { calls: FetchCall[] }
 
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (input: string | URL, init?: RequestInit) => {
+    vi.fn((input: string | URL, init?: RequestInit) => {
       calls.push({
         url: String(input),
         method: init?.method ?? "GET",
