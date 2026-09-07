@@ -8,10 +8,10 @@ Official Vocea SDK for Node.js and TypeScript. Provides text-to-speech generatio
 
 The published package only relies on `fetch`, `FormData` and `Blob`, all present
 since Node 18, so `engines.node` in `package.json` stays at `>=18`. Developing
-the SDK itself is stricter: the test suite (Vitest 5) and linter (ESLint 10)
-require Node 20.19+, and `.nvmrc` pins the exact version (22) used to develop
-and test this repository — run `nvm use` before `pnpm install` if you're
-contributing.
+the SDK itself is stricter: the test suite (Vitest 5) requires Node 22.12+ —
+ESLint 10 alone would tolerate 20.19+, but Vitest is the binding constraint.
+`.nvmrc` pins the exact version (22) used to develop and test this
+repository — run `nvm use` before `pnpm install` if you're contributing.
 
 ## Installation
 
