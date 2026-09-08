@@ -6,6 +6,7 @@ import type {
   GenerateAudioRequest, ListPublicVoicesParams, LoginRequest, LoginResponse,
   PaginatedResponse, PaginationParams, RegisterRequest, Transaction,
   TransactionType, Transcription, TranscribeResponse, TtsConfig, TtsLanguage, TtsModel,
+  TtsModelListItem, UpdateUserRequest,
   UpdateVoiceMetadataRequest, UsdBalance, User, Voice, VoiceAgeRange,
   VoiceEarnings, VoiceGender, VoiceProvider, VoiceSettings, VoiceStatus,
   VoceaClientOptions, VoceaErrorBody,
@@ -34,6 +35,8 @@ export type SuperficieDeTipos = {
   ttsConfig: TtsConfig;
   ttsLanguage: TtsLanguage;
   ttsModel: TtsModel;
+  ttsModelListItem: TtsModelListItem;
+  updateUserRequest: UpdateUserRequest;
   updateVoiceMetadataRequest: UpdateVoiceMetadataRequest;
   usdBalance: UsdBalance;
   user: User;

@@ -1,5 +1,11 @@
 import type { HttpClient } from "../http.js";
-import type { ApiKeyCreated, ApiKeyStatus, UsdBalance, User } from "../types.js";
+import type {
+  ApiKeyCreated,
+  ApiKeyStatus,
+  UpdateUserRequest,
+  UsdBalance,
+  User,
+} from "../types.js";
 
 export class UsersResource {
   constructor(private http: HttpClient) {}
@@ -8,7 +14,11 @@ export class UsersResource {
     return this.http.request("GET", "/users/me");
   }
 
-  update(body: { full_name?: string; preferred_language?: string }): Promise<User> {
+  /**
+   * Actualiza el perfil. El cuerpo va en snake_case (`full_name`,
+   * `preferred_language`) y la respuesta vuelve en camelCase, como `me()`.
+   */
+  update(body: UpdateUserRequest): Promise<User> {
     return this.http.request("PATCH", "/users/me", { json: body });
   }
 

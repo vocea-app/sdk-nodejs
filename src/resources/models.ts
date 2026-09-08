@@ -1,15 +1,24 @@
 import type { HttpClient } from "../http.js";
-import type { TtsConfig, TtsLanguage, TtsModel } from "../types.js";
+import type { TtsConfig, TtsLanguage, TtsModel, TtsModelListItem } from "../types.js";
 
 export class ModelsResource {
   constructor(private http: HttpClient) {}
 
-  /** Lista todos los modelos TTS activos. */
-  list(): Promise<TtsModel[]> {
+  /**
+   * Lista todos los modelos TTS activos. Cada ítem trae `providerId` y
+   * `maxCharacters`, que el detalle (`get`) no emite.
+   */
+  list(): Promise<TtsModelListItem[]> {
     return this.http.request("GET", "/tts-models");
   }
 
-  /** Obtiene un modelo TTS por ID. */
+  /**
+   * Obtiene un modelo TTS por ID.
+   *
+   * El backend sirve este endpoint con un `select` reducido: la respuesta NO
+   * incluye `providerId` ni `maxCharacters`. Si necesitas esos campos, léelos
+   * del ítem correspondiente de `list()`.
+   */
   get(id: string): Promise<TtsModel> {
     return this.http.request("GET", `/tts-models/${id}`);
   }

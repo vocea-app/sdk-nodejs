@@ -132,17 +132,25 @@ const user = await vocea.users.me();
 
 console.log(user.id);
 console.log(user.email);
-console.log(user.full_name);
-console.log(user.preferred_language); // e.g. "es"
+console.log(user.fullName);
+console.log(user.preferredLanguage); // e.g. "es"
+console.log(user.balance); // USD, same value as vocea.users.balance()
 ```
+
+The profile comes back in **camelCase** (`fullName`, `preferredLanguage`). The
+request bodies you send — `auth.register()` and `users.update()` — stay in
+snake_case, because that is what the API validates. Both shapes are correct;
+they are simply not the same shape.
 
 ### Update your profile
 
 ```typescript
 const updated = await vocea.users.update({
-  full_name: "María García López",
+  full_name: "María García López", // request body: snake_case
   preferred_language: "en",
 });
+
+console.log(updated.fullName); // response: camelCase
 ```
 
 ### Check your balance
@@ -597,6 +605,21 @@ All types are exported from the package root.
 > `INSUFFICIENT_BALANCE`, with no alias: any code comparing
 > `err.errorCode` against the old string stops matching.
 > `Voice.langSet` stays deprecated: the API no longer sends it.
+>
+> Two long-standing type mismatches are also fixed in 0.3.0, and both are
+> breaking for code that relied on the old (wrong) declarations:
+>
+> - `User` now describes what `/users/me` really returns: `fullName` and
+>   `preferredLanguage` in camelCase, not `full_name` / `preferred_language`.
+>   It also gained `role`, `isVerified`, `balance`, `createdAt` and
+>   `updatedAt`, which the endpoint has always sent. The **request** body of
+>   `users.update()` keeps its snake_case keys — it is a different shape, typed
+>   as `UpdateUserRequest`. `LoginResponse.user` is now a full `User`, since
+>   login returns the same sanitized profile.
+> - `TtsModel` no longer promises `providerId` and `maxCharacters`: only
+>   `GET /tts-models` sends them, `GET /tts-models/:id` does not. The listing
+>   type is `TtsModelListItem`, returned by `models.list()`; `models.get()`
+>   returns the narrower `TtsModel`.
 
 ```typescript
 import type {
@@ -610,9 +633,16 @@ import type {
 
   // Users
   User,
+  UpdateUserRequest,
   UsdBalance,
   ApiKeyStatus,
   ApiKeyCreated,
+
+  // TTS models
+  TtsModel,                 // GET /tts-models/:id
+  TtsModelListItem,         // GET /tts-models — adds providerId + maxCharacters
+  TtsLanguage,
+  TtsConfig,
 
   // Voices
   Voice,

@@ -7,7 +7,8 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   access_token: string;
-  user: { id: string; email: string };
+  /** El mismo perfil saneado que devuelve `GET /users/me`, no solo id y email. */
+  user: User;
 }
 
 export interface RegisterRequest {
@@ -20,10 +21,35 @@ export interface RegisterRequest {
 
 // ─── Users ─────────────────────────────────────────────────────────────────
 
+/**
+ * Perfil que devuelven `GET /users/me`, `PATCH /users/me` y el campo `user` de
+ * `POST /auth/login`: la entidad del backend sin sus campos sensibles.
+ *
+ * Sus claves viajan en **camelCase** (`fullName`, `preferredLanguage`). El
+ * cuerpo que se ENVÍA para actualizar el perfil o para registrarse va en
+ * snake_case (ver `UpdateUserRequest` y `RegisterRequest`): son dos formas
+ * distintas y las dos son correctas.
+ */
 export interface User {
   id: string;
   email: string;
-  full_name: string;
+  fullName: string;
+  /** Código BCP-47. Siempre presente: la columna tiene valor por defecto. */
+  preferredLanguage: string;
+  role: "user" | "admin";
+  isVerified: boolean;
+  /** Saldo en USD (decimal, hasta 8 posiciones). */
+  balance: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Cuerpo de `PATCH /users/me`, en snake_case: es lo que valida el backend
+ * (`UpdateUserDto`). La respuesta, en cambio, es un `User` en camelCase.
+ */
+export interface UpdateUserRequest {
+  full_name?: string;
   preferred_language?: string;
 }
 
@@ -42,17 +68,36 @@ export interface ApiKeyCreated {
 
 // ─── TTS Models ────────────────────────────────────────────────────────────
 
+/**
+ * Modelo TTS tal y como lo devuelve `GET /tts-models/:id`.
+ *
+ * El detalle se sirve con un `select` reducido (`PUBLIC_SELECT` en
+ * `tts-models.service.ts`), así que **no** incluye `providerId` ni
+ * `maxCharacters`. El listado sí los emite: ver `TtsModelListItem`.
+ */
 export interface TtsModel {
   id: string;
   name: string;
   description: string | null;
-  /** Proveedor que sirve este modelo (Inworld, Minimax, ElevenLabs). */
-  providerId: string;
-  /** Límite de caracteres por generación para este modelo. */
-  maxCharacters: number;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
+}
+
+/**
+ * Modelo TTS tal y como lo devuelve `GET /tts-models` (el listado), que añade
+ * dos campos que el detalle no trae.
+ */
+export interface TtsModelListItem extends TtsModel {
+  /**
+   * Proveedor que sirve este modelo (Inworld, Minimax, ElevenLabs).
+   *
+   * La columna admite NULL, pero el listado descarta los modelos sin proveedor
+   * activo con cuenta, así que en esta respuesta nunca llega nulo.
+   */
+  providerId: string;
+  /** Límite de caracteres por generación para este modelo. */
+  maxCharacters: number;
 }
 
 export interface TtsLanguage {
@@ -183,7 +228,13 @@ export interface AdvancedParams {
 export interface GenerateAudioRequest {
   /** Voz clonada del usuario. Mutuamente exclusivo con `provider_voice_id`. */
   voice_id?: string;
-  /** Voz del catálogo de proveedores (ver `voices.explore()`). Mutuamente exclusivo con `voice_id`. */
+  /**
+   * Voz del catálogo de proveedores. Mutuamente exclusivo con `voice_id`.
+   *
+   * El SDK todavía no expone el catálogo: los ids se obtienen llamando a mano
+   * a `GET /voices/explore` y tomando el campo `id` de los ítems con
+   * `source: "provider"`.
+   */
   provider_voice_id?: string;
   text: string;
   language_code: string;

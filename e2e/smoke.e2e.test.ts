@@ -74,9 +74,27 @@ describe.skipIf(!apiKey)("e2e contra la API real", () => {
     expect(typeof pagina.items[0].balanceEarnedTotal).toBe("number");
   });
 
-  it("los modelos exponen maxCharacters y providerId", async () => {
+  it("los modelos exponen maxCharacters y providerId en el listado", async () => {
     const modelos = await vocea.models.list();
     expect(typeof modelos[0].maxCharacters).toBe("number");
     expect(typeof modelos[0].providerId).toBe("string");
+  });
+
+  it("el detalle de un modelo NO emite maxCharacters ni providerId", async () => {
+    // /tts-models/:id se sirve con un select reducido en el backend. Si este
+    // test empieza a fallar es que el backend ya los emite, y entonces
+    // TtsModel puede recuperar los dos campos.
+    const modelos = await vocea.models.list();
+    const detalle = await vocea.models.get(modelos[0].id);
+    expect(Object.keys(detalle)).not.toContain("maxCharacters");
+    expect(Object.keys(detalle)).not.toContain("providerId");
+  });
+
+  it("el perfil de /users/me llega en camelCase", async () => {
+    const usuario = await vocea.users.me();
+    expect(typeof usuario.fullName).toBe("string");
+    expect(typeof usuario.preferredLanguage).toBe("string");
+    expect(Object.keys(usuario)).not.toContain("full_name");
+    expect(Object.keys(usuario)).not.toContain("preferred_language");
   });
 });
