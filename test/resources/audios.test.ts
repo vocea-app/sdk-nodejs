@@ -56,6 +56,13 @@ describe("AudiosResource", () => {
     await expect(res.text()).resolves.toBe("bytes-mp3");
   });
 
+  it("delete hace DELETE y no devuelve cuerpo", async () => {
+    const { calls } = mockFetch({ status: 204 });
+    await expect(createClient().audios.delete("a1")).resolves.toBeUndefined();
+    expect(calls[0].method).toBe("DELETE");
+    expect(calls[0].url).toBe("https://api.test/v1/audios/a1");
+  });
+
   it("playUrl compone la URL pública sin hacer petición", () => {
     const { calls } = mockFetch({ json: {} });
     const url = createClient().audios.playUrl("a1");

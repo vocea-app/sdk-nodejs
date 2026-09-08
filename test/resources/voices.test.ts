@@ -16,6 +16,14 @@ describe("VoicesResource", () => {
     expect(calls[0].url).toBe("https://api.test/v1/voices/public?page=1&ageRange=adult");
   });
 
+  it("get interpola el id en la ruta", async () => {
+    const { calls } = mockFetch({ json: { id: "v1", name: "Mi voz" } });
+    const voz = await createClient().voices.get("v1");
+    expect(calls[0].method).toBe("GET");
+    expect(calls[0].url).toBe("https://api.test/v1/voices/v1");
+    expect(voz.id).toBe("v1");
+  });
+
   it("clone manda name y un audio_sample en FormData", async () => {
     const { calls } = mockFetch({ json: { id: "v1" } });
     const muestra = new Blob([new Uint8Array([1, 2, 3])], { type: "audio/mpeg" });
