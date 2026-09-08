@@ -8,7 +8,7 @@ import type {
   Transcription, TranscribeResponse, TtsConfig, TtsLanguage, TtsModel,
   UpdateVoiceMetadataRequest, UsdBalance, User, Voice, VoiceAgeRange,
   VoiceEarnings, VoiceGender, VoiceProvider, VoiceSettings, VoiceStatus,
-  VoceaErrorBody,
+  VoceaClientOptions, VoceaErrorBody,
 } from "../src/index.js";
 
 export type SuperficieDeTipos = {
@@ -44,5 +44,6 @@ export type SuperficieDeTipos = {
   voiceProvider: VoiceProvider;
   voiceSettings: VoiceSettings;
   voiceStatus: VoiceStatus;
+  voceaClientOptions: VoceaClientOptions;
   voceaErrorBody: VoceaErrorBody;
 };
