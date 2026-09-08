@@ -4,7 +4,7 @@ import { createClient, mockFetch } from "../helpers.js";
 describe("SttResource", () => {
   it("transcribe manda el audio en FormData y el idioma en la query", async () => {
     const { calls } = mockFetch({
-      json: { transcript: "hola", characterCount: 4, creditsConsumed: 0.01, durationMs: 500 },
+      json: { transcript: "hola", characterCount: 4, balanceConsumed: 0.01, durationMs: 500 },
     });
     const audio = new Blob([new Uint8Array([1, 2])], { type: "audio/mpeg" });
     await createClient().stt.transcribe(audio, "en-US");

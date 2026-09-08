@@ -16,18 +16,12 @@ describe("UsersResource", () => {
     expect(JSON.parse(calls[0].body as string)).toEqual({ full_name: "Nuevo" });
   });
 
-  it("balance lee /users/me/credits y devuelve creditsBalance", async () => {
-    const { calls } = mockFetch({ json: { creditsBalance: 12.5 } });
+  it("balance lee /users/me/balance y devuelve el saldo decimal", async () => {
+    const { calls } = mockFetch({ json: { balance: 10.42544375 } });
     const saldo = await createClient().users.balance();
-    expect(calls[0].url).toBe("https://api.test/v1/users/me/credits");
-    expect(saldo.creditsBalance).toBe(12.5);
-  });
-
-  it("credits() sigue funcionando como alias deprecado de balance()", async () => {
-    const { calls } = mockFetch({ json: { creditsBalance: 3 } });
-    const saldo = await createClient().users.credits();
-    expect(calls[0].url).toBe("https://api.test/v1/users/me/credits");
-    expect(saldo.creditsBalance).toBe(3);
+    expect(calls[0].url).toBe("https://api.test/v1/users/me/balance");
+    // Los 8 decimales del backend deben llegar íntegros: nada de redondeos.
+    expect(saldo.balance).toBe(10.42544375);
   });
 
   it("createApiKey hace POST y deleteApiKey hace DELETE al mismo path", async () => {

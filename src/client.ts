@@ -1,7 +1,7 @@
 import { HttpClient } from "./http.js";
 import { AuthResource } from "./resources/auth.js";
 import { AudiosResource } from "./resources/audios.js";
-import { CreditsResource } from "./resources/credits.js";
+import { BalanceResource } from "./resources/balance.js";
 import { ModelsResource } from "./resources/models.js";
 import { SttResource } from "./resources/stt.js";
 import { UsersResource } from "./resources/users.js";
@@ -18,7 +18,7 @@ export class VoceaClient {
   readonly voices: VoicesResource;
   readonly audios: AudiosResource;
   readonly stt: SttResource;
-  readonly credits: CreditsResource;
+  readonly balance: BalanceResource;
   readonly models: ModelsResource;
 
   constructor(options: VoceaClientOptions) {
@@ -32,7 +32,7 @@ export class VoceaClient {
     this.voices = new VoicesResource(http);
     this.audios = new AudiosResource(http);
     this.stt = new SttResource(http);
-    this.credits = new CreditsResource(http);
+    this.balance = new BalanceResource(http);
     this.models = new ModelsResource(http);
   }
 }

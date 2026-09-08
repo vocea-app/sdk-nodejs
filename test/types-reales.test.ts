@@ -20,7 +20,7 @@ const vozReal: Voice = {
   isPublic: false,
   publicRejectReason: null,
   timesUsed: 0,
-  creditsEarnedTotal: "0.00000000",
+  balanceEarnedTotal: 0,
   lastUsedAt: null,
   createdAt: "2026-09-03T04:38:34.952Z",
   updatedAt: "2026-09-03T04:38:48.000Z",
@@ -61,8 +61,8 @@ const paginaReal: PaginatedResponse<Voice> = {
 };
 
 describe("los tipos admiten la forma real de la API", () => {
-  it("creditsEarnedTotal es un string decimal, no un número", () => {
-    expect(typeof vozReal.creditsEarnedTotal).toBe("string");
+  it("balanceEarnedTotal llega como número, no como string", () => {
+    expect(typeof vozReal.balanceEarnedTotal).toBe("number");
   });
 
   it("providers describe el estado por proveedor", () => {

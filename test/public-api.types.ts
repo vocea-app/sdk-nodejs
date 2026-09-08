@@ -1,8 +1,8 @@
 // No es un test de Vitest: es un centinela para `tsc --noEmit`. Si un tipo
 // exportado desaparece o se renombra, este fichero deja de compilar.
 import type {
-  AdvancedParams, ApiKeyCreated, ApiKeyStatus, Audio, CheckoutResponse,
-  CloneVoiceRequest, CreditPackage, CreditsBalance, Emotion,
+  AdvancedParams, ApiKeyCreated, ApiKeyStatus, Audio, BalancePackage,
+  CheckoutResponse, CloneVoiceRequest, Emotion,
   GenerateAudioRequest, ListPublicVoicesParams, LoginRequest, LoginResponse,
   PaginatedResponse, PaginationParams, RegisterRequest, Transaction,
   Transcription, TranscribeResponse, TtsConfig, TtsLanguage, TtsModel,
@@ -16,10 +16,9 @@ export type SuperficieDeTipos = {
   apiKeyCreated: ApiKeyCreated;
   apiKeyStatus: ApiKeyStatus;
   audio: Audio;
+  balancePackage: BalancePackage;
   checkoutResponse: CheckoutResponse;
   cloneVoiceRequest: CloneVoiceRequest;
-  creditPackage: CreditPackage;
-  creditsBalance: CreditsBalance;
   emotion: Emotion;
   generateAudioRequest: GenerateAudioRequest;
   listPublicVoicesParams: ListPublicVoicesParams;

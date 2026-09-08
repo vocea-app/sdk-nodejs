@@ -18,7 +18,7 @@ describe("superficie pública", () => {
     expect(Object.keys(vocea).sort()).toEqual([
       "audios",
       "auth",
-      "credits",
+      "balance",
       "models",
       "stt",
       "users",
@@ -33,7 +33,7 @@ describe("superficie pública", () => {
       "resendVerification", "resetPassword", "verifyEmail",
     ]);
     expect(metodosDe(vocea.users)).toEqual([
-      "apiKeyStatus", "balance", "createApiKey", "credits",
+      "apiKeyStatus", "balance", "createApiKey",
       "deleteAccount", "deleteApiKey", "me", "update",
     ]);
     expect(metodosDe(vocea.voices)).toEqual([
@@ -46,7 +46,7 @@ describe("superficie pública", () => {
     expect(metodosDe(vocea.stt)).toEqual([
       "deleteTranscription", "listTranscriptions", "transcribe",
     ]);
-    expect(metodosDe(vocea.credits)).toEqual([
+    expect(metodosDe(vocea.balance)).toEqual([
       "checkout", "listPackages", "listTransactions",
     ]);
     expect(metodosDe(vocea.models)).toEqual([

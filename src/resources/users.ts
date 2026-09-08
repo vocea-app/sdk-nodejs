@@ -12,14 +12,9 @@ export class UsersResource {
     return this.http.request("PATCH", "/users/me", { json: body });
   }
 
-  /** Devuelve el saldo actual en USD. El campo `creditsBalance` contiene el valor decimal en dólares. */
+  /** Devuelve el saldo actual. El campo `balance` es el valor decimal en dólares. */
   balance(): Promise<UsdBalance> {
-    return this.http.request("GET", "/users/me/credits");
-  }
-
-  /** @deprecated Usa `balance()`. Se mantiene para no romper integraciones del 0.1.x. */
-  credits(): Promise<UsdBalance> {
-    return this.balance();
+    return this.http.request("GET", "/users/me/balance");
   }
 
   apiKeyStatus(): Promise<ApiKeyStatus> {

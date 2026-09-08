@@ -25,9 +25,9 @@ describe.skipIf(!apiKey)("e2e contra la API real", () => {
     expect(typeof modelo.isActive).toBe("boolean");
   });
 
-  it("users.balance() devuelve creditsBalance numérico", async () => {
+  it("users.balance() devuelve el saldo como número", async () => {
     const saldo = await vocea.users.balance();
-    expect(typeof saldo.creditsBalance).toBe("number");
+    expect(typeof saldo.balance).toBe("number");
   });
 
   it("voices.list() devuelve una página con la forma declarada", async () => {
@@ -52,7 +52,7 @@ describe.skipIf(!apiKey)("e2e contra la API real", () => {
       "id", "name", "status", "failureReason", "cloneAudioDuration",
       "languageCode", "countryId", "regionId", "ageRange", "gender",
       "country", "region", "isPublicRequest", "isPublic", "timesUsed",
-      "creditsEarnedTotal", "publicRejectReason", "hasSamplePreview",
+      "balanceEarnedTotal", "publicRejectReason", "hasSamplePreview",
       "isFavorited", "favoritesCount", "providers", "lastUsedAt",
       "createdAt", "updatedAt", "deletedAt", "langSet",
     ];
@@ -66,11 +66,12 @@ describe.skipIf(!apiKey)("e2e contra la API real", () => {
     expect(desconocidos, "campos nuevos en la API que Voice no declara").toEqual([]);
   });
 
-  it("creditsEarnedTotal sigue llegando como string decimal", async () => {
+  it("balanceEarnedTotal llega como número decimal", async () => {
     const pagina = await vocea.voices.list({ page: 1, limit: 1 });
     if (pagina.items.length === 0) return;
-    // Si esto pasa a "number", el backend ha cambiado y el tipo debe seguirlo.
-    expect(typeof pagina.items[0].creditsEarnedTotal).toBe("string");
+    // El decimalTransformer del backend lo entrega ya convertido: si esto
+    // volviera a ser "string", el tipo tendría que seguirlo.
+    expect(typeof pagina.items[0].balanceEarnedTotal).toBe("number");
   });
 
   it("los modelos exponen maxCharacters y providerId", async () => {

@@ -30,7 +30,7 @@ function describe(statusCode: number, body: VoceaErrorBody): string {
 
 export class VoceaError extends Error {
   /**
-   * Código estable de la API (`INSUFFICIENT_CREDITS`, `VOICE_NOT_FOUND`,
+   * Código estable de la API (`VOICE_NOT_FOUND`, `VOICE_NOT_ACTIVE`,
    * `UNSUPPORTED_AUDIO_FORMAT`…) cuando lo envía. Preferible a comparar
    * mensajes para tomar decisiones en el código que consume el SDK.
    */

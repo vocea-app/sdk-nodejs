@@ -27,9 +27,9 @@ export interface User {
   preferred_language?: string;
 }
 
-/** Balance en USD (decimal). El campo se llama creditsBalance por compatibilidad con la API. */
+/** Saldo en USD (decimal, hasta 8 posiciones). */
 export interface UsdBalance {
-  creditsBalance: number;
+  balance: number;
 }
 
 export interface ApiKeyStatus {
@@ -106,11 +106,8 @@ export interface Voice {
   isPublicRequest: boolean;
   isPublic: boolean;
   timesUsed: number;
-  /**
-   * Decimal serializado como string por el ORM (p. ej. `"0.00000000"`).
-   * Conviértelo con `Number(...)` antes de operar.
-   */
-  creditsEarnedTotal: string;
+  /** Saldo total en USD generado por esta voz cuando otros la usan. */
+  balanceEarnedTotal: number;
   publicRejectReason: string | null;
   hasSamplePreview: boolean;
   isFavorited: boolean;
@@ -223,20 +220,18 @@ export interface Audio {
 export interface TranscribeResponse {
   transcript: string;
   characterCount: number;
-  creditsConsumed: number;
+  /** Saldo en USD descontado por esta transcripción. */
+  balanceConsumed: number;
   durationMs: number;
 }
 
-// ─── Credits / Balance ─────────────────────────────────────────────────────
+// ─── Balance ───────────────────────────────────────────────────────────────
 
-export interface CreditPackage {
+export interface BalancePackage {
   id: string;
   name: string;
-  /**
-   * Decimal serializado como string por el ORM (p. ej. `"7.99"`).
-   * Conviértelo con `Number(...)` antes de operar.
-   */
-  priceUsd: string;
+  /** Precio en USD, que es también el saldo que suma la compra. */
+  priceUsd: number;
   isActive: boolean;
   lemonsqueezyVariantId?: string;
 }
@@ -268,12 +263,7 @@ export interface VoceaErrorBody {
   statusCode: number;
   /** La API sanitiza sus errores, así que normalmente no viene. */
   message?: string | string[];
-  /** Código estable de error: INSUFFICIENT_CREDITS, VOICE_NOT_FOUND, … */
+  /** Código estable de error: VOICE_NOT_FOUND, UNSUPPORTED_AUDIO_FORMAT, … */
   errorCode?: string;
   error?: string;
 }
-
-// ─── Backwards compatibility alias ─────────────────────────────────────────
-
-/** @deprecated Usa `UsdBalance`. El balance ahora es en USD. */
-export type CreditsBalance = UsdBalance;

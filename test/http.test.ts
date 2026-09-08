@@ -65,8 +65,8 @@ describe("HttpClient", () => {
 
   it("lanza VoceaError con el cuerpo de error de la API", async () => {
     mockFetch({
-      status: 402,
-      json: { statusCode: 402, errorCode: "INSUFFICIENT_CREDITS" },
+      status: 422,
+      json: { statusCode: 422, errorCode: "VOICE_NOT_ACTIVE" },
     });
     await expect(client().request("POST", "/audios/generate")).rejects.toThrow(
       VoceaError,
