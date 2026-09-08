@@ -1,0 +1,79 @@
+name: Publish to npm
+
+# Publica al empujar una etiqueta vX.Y.Z, o a mano desde la pestaña Actions.
+#
+# No usa ningún token: npm revocó los clásicos el 9 de diciembre de 2025 y los
+# granulares caducan a los 90 días y exigen 2FA. En su lugar esto usa Trusted
+# Publishing (OIDC): npm confía en este repositorio y en este fichero concreto,
+# así que no hay ningún secreto que rotar ni que se pueda filtrar.
+#
+# Requiere configurarlo una vez en npmjs.com, en el paquete:
+#   Settings -> Trusted Publisher -> GitHub Actions
+#   Organización: vocea-app | Repositorio: sdk-nodejs | Workflow: publish.yml
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  # id-token es lo que permite a GitHub emitir el token OIDC que npm valida.
+  # Sin este permiso, npm publish cae al camino de token y falla.
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    name: Verificar y publicar
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          # Trusted publishing exige Node >= 22.14
+          node-version: 22
+          cache: pnpm
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing exige npm >= 11.5.1; la que trae el runner es menor.
+      - name: Actualizar npm
+        run: npm install -g npm@latest
+
+      - name: Instalar dependencias
+        run: pnpm install --frozen-lockfile
+
+      # La misma cadena que el CI: no se publica nada que no esté verificado.
+      - name: Chequeo de tipos
+        run: pnpm run typecheck
+
+      - name: Lint
+        run: pnpm run lint
+
+      - name: Tests con cobertura
+        run: pnpm run test:coverage
+
+      - name: Verificar el paquete construido
+        run: pnpm run verify:dist
+
+      - name: Comprobar que la etiqueta coincide con package.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          ETIQUETA="${GITHUB_REF_NAME#v}"
+          MANIFIESTO="$(node -p "require('./package.json').version")"
+          if [ "$ETIQUETA" != "$MANIFIESTO" ]; then
+            echo "La etiqueta dice $ETIQUETA y package.json dice $MANIFIESTO." >&2
+            echo "Publicar así dejaría la etiqueta apuntando a otra versión." >&2
+            exit 1
+          fi
+          echo "Etiqueta y manifiesto coinciden en $MANIFIESTO"
+
+      # npm detecta el entorno OIDC solo; no hace falta NODE_AUTH_TOKEN.
+      - name: Publicar
+        run: npm publish --access public
