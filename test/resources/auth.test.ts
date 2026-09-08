@@ -51,6 +51,7 @@ describe("AuthResource", () => {
     await auth.forgotPassword("m@test.com");
     await auth.resendVerification("m@test.com");
     expect(calls[0].url).toBe("https://api.test/v1/auth/forgot-password");
+    expect(JSON.parse(calls[0].body as string)).toEqual({ email: "m@test.com" });
     expect(calls[1].url).toBe("https://api.test/v1/auth/resend-verification");
     expect(JSON.parse(calls[1].body as string)).toEqual({ email: "m@test.com" });
   });

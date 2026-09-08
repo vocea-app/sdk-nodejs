@@ -38,6 +38,7 @@ describe("UsersResource", () => {
     expect(calls[0].method).toBe("POST");
     expect(calls[0].url).toBe("https://api.test/v1/users/me/api-key");
     expect(calls[1].method).toBe("DELETE");
+    expect(calls[1].url).toBe("https://api.test/v1/users/me/api-key");
   });
 
   it("apiKeyStatus lee el endpoint de estado", async () => {
