@@ -5,7 +5,7 @@ import type {
   CheckoutResponse, CloneVoiceRequest, Emotion,
   GenerateAudioRequest, ListPublicVoicesParams, LoginRequest, LoginResponse,
   PaginatedResponse, PaginationParams, RegisterRequest, Transaction,
-  Transcription, TranscribeResponse, TtsConfig, TtsLanguage, TtsModel,
+  TransactionType, Transcription, TranscribeResponse, TtsConfig, TtsLanguage, TtsModel,
   UpdateVoiceMetadataRequest, UsdBalance, User, Voice, VoiceAgeRange,
   VoiceEarnings, VoiceGender, VoiceProvider, VoiceSettings, VoiceStatus,
   VoceaClientOptions, VoceaErrorBody,
@@ -28,6 +28,7 @@ export type SuperficieDeTipos = {
   paginationParams: PaginationParams;
   registerRequest: RegisterRequest;
   transaction: Transaction;
+  transactionType: TransactionType;
   transcription: Transcription;
   transcribeResponse: TranscribeResponse;
   ttsConfig: TtsConfig;

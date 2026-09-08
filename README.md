@@ -516,6 +516,8 @@ const all = await vocea.balance.listTransactions({ page: 1, limit: 20 });
 const purchases    = await vocea.balance.listTransactions({ type: "purchase" });
 const consumption  = await vocea.balance.listTransactions({ type: "consumption" });
 const adjustments  = await vocea.balance.listTransactions({ type: "adjustment" });
+const earned       = await vocea.balance.listTransactions({ type: "earned_public_voice" });
+const welcome      = await vocea.balance.listTransactions({ type: "welcome_bonus" });
 
 for (const tx of all.items) {
   console.log(`[${tx.type}] ${tx.amount > 0 ? "+" : ""}${tx.amount} USD — ${tx.description}`);
@@ -524,11 +526,16 @@ for (const tx of all.items) {
 
 **Transaction types:**
 
-| Type          | Description                              |
-| ------------- | ---------------------------------------- |
-| `purchase`    | Balance added via a successful payment   |
-| `consumption` | Balance deducted by TTS or STT API usage |
-| `adjustment`  | Manual adjustment by the Vocea team      |
+All five values are exported as the `TransactionType` union, so a `switch` over
+`tx.type` is exhaustive.
+
+| Type                  | Description                                             |
+| --------------------- | ------------------------------------------------------- |
+| `purchase`            | Balance added via a successful payment                  |
+| `consumption`         | Balance deducted by TTS or STT API usage                |
+| `adjustment`          | Manual adjustment by the Vocea team                     |
+| `earned_public_voice` | Balance earned when someone else uses your public voice |
+| `welcome_bonus`       | Balance granted on sign-up                              |
 
 ---
 
