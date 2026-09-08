@@ -586,6 +586,9 @@ All types are exported from the package root.
 >
 > The deprecated `vocea.users.credits()` alias and the `CreditsBalance` type
 > alias were removed; use `vocea.users.balance()` and `UsdBalance`.
+> The API's stable error code `INSUFFICIENT_CREDITS` is now
+> `INSUFFICIENT_BALANCE`, with no alias: any code comparing
+> `err.errorCode` against the old string stops matching.
 > `Voice.langSet` stays deprecated: the API no longer sends it.
 
 ```typescript

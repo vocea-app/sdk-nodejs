@@ -13,19 +13,19 @@ describe("VoceaError", () => {
   });
 
   it("cae al errorCode cuando no hay message", () => {
-    const err = new VoceaError(400, {
-      statusCode: 400,
-      errorCode: "UNSUPPORTED_AUDIO_FORMAT",
+    const err = new VoceaError(402, {
+      statusCode: 402,
+      errorCode: "INSUFFICIENT_BALANCE",
     });
-    expect(err.message).toBe("Vocea API error 400: UNSUPPORTED_AUDIO_FORMAT");
+    expect(err.message).toBe("Vocea API error 402: INSUFFICIENT_BALANCE");
   });
 
   it("expone errorCode como propiedad para no comparar mensajes", () => {
-    const err = new VoceaError(400, {
-      statusCode: 400,
-      errorCode: "UNSUPPORTED_AUDIO_FORMAT",
+    const err = new VoceaError(402, {
+      statusCode: 402,
+      errorCode: "INSUFFICIENT_BALANCE",
     });
-    expect(err.errorCode).toBe("UNSUPPORTED_AUDIO_FORMAT");
+    expect(err.errorCode).toBe("INSUFFICIENT_BALANCE");
   });
 
   it("cae al texto por statusCode cuando el cuerpo viene vacío", () => {

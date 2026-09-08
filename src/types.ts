@@ -263,7 +263,7 @@ export interface VoceaErrorBody {
   statusCode: number;
   /** La API sanitiza sus errores, así que normalmente no viene. */
   message?: string | string[];
-  /** Código estable de error: VOICE_NOT_FOUND, UNSUPPORTED_AUDIO_FORMAT, … */
+  /** Código estable de error: INSUFFICIENT_BALANCE, VOICE_NOT_FOUND, … */
   errorCode?: string;
   error?: string;
 }
