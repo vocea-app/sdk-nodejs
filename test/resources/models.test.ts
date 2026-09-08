@@ -4,7 +4,10 @@ import { createClient, mockFetch } from "../helpers.js";
 describe("ModelsResource", () => {
   it("list devuelve los modelos activos", async () => {
     const { calls } = mockFetch({
-      json: [{ id: "m1", name: "Studio", description: null, isActive: true, sortOrder: 1, createdAt: "2026-01-01" }],
+      json: [{
+        id: "m1", name: "Studio", description: null, providerId: "p1", maxCharacters: 2000,
+        isActive: true, sortOrder: 1, createdAt: "2026-01-01",
+      }],
     });
     const modelos = await createClient().models.list();
     expect(calls[0].url).toBe("https://api.test/v1/tts-models");
