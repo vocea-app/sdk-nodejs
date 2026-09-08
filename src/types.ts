@@ -232,7 +232,11 @@ export interface TranscribeResponse {
 export interface CreditPackage {
   id: string;
   name: string;
-  priceUsd: number;
+  /**
+   * Decimal serializado como string por el ORM (p. ej. `"7.99"`).
+   * Conviértelo con `Number(...)` antes de operar.
+   */
+  priceUsd: string;
   isActive: boolean;
   lemonsqueezyVariantId?: string;
 }

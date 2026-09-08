@@ -14,8 +14,20 @@ export interface ListPublicVoicesParams extends PaginationParams {
 }
 
 export interface VoiceEarnings {
-  earnings: { month: string; creditsEarned: number }[];
-  creditsEarnedTotal: number;
+  earnings: {
+    month: string;
+    /**
+     * Sin verificar contra la API real: el array vino vacío al muestrear.
+     * Se tipa como string por coherencia con `creditsEarnedTotal`, que es
+     * el mismo dominio (decimal serializado por el ORM).
+     */
+    creditsEarned: string;
+  }[];
+  /**
+   * Decimal serializado como string por el ORM (p. ej. `"0.00000000"`).
+   * Conviértelo con `Number(...)` antes de operar.
+   */
+  creditsEarnedTotal: string;
   timesUsed: number;
 }
 

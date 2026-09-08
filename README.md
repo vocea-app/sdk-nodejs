@@ -315,7 +315,7 @@ console.log(data.creditsEarnedTotal);
 console.log(data.timesUsed);
 
 for (const entry of data.earnings) {
-  console.log(entry.month, entry.creditsEarned); // e.g. "2024-03", 120
+  console.log(entry.month, entry.creditsEarned); // e.g. "2024-03", "120.00000000"
 }
 ```
 
@@ -575,6 +575,14 @@ All types are exported from the package root.
 > La API siempre devolvió un decimal serializado (`"0.00000000"`); el tipo
 > anterior era incorrecto. Usa `Number(voice.creditsEarnedTotal)` para operar.
 > `Voice.langSet` queda deprecado: la API ya no lo envía.
+>
+> **Not yet released:** `VoiceEarnings.creditsEarnedTotal` and
+> `CreditPackage.priceUsd` were also `number` but the API returns them as
+> decimal strings (e.g. `"0.00000000"`, `"7.99"`), the same ORM-serialization
+> issue as `Voice.creditsEarnedTotal` above. Both are now typed as `string`;
+> use `Number(...)` to operate on them. `VoiceEarnings.earnings[].creditsEarned`
+> was changed to `string` for consistency but hasn't been empirically verified
+> against the API (the sampled account had no earnings history).
 
 ```typescript
 import type {
