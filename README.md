@@ -29,7 +29,7 @@ bun add @vocea.app/sdk
 - [Voices](#voices-voceavoices)
 - [Text-to-Speech](#text-to-speech-voceaaudios)
 - [Speech-to-Text](#speech-to-text-voceastt)
-- [Credits](#credits-voceacredits)
+- [Balance](#balance-voceabalance)
 - [Error Handling](#error-handling)
 - [TypeScript Types](#typescript-types)
 
@@ -123,7 +123,7 @@ await vocea.auth.logout();
 
 ## Users (`vocea.users`)
 
-Manage the authenticated user's profile, credits, and API keys.
+Manage the authenticated user's profile, balance, and API keys.
 
 ### Get your profile
 
@@ -145,11 +145,14 @@ const updated = await vocea.users.update({
 });
 ```
 
-### Check your credit balance
+### Check your balance
+
+The balance is a USD amount with up to 8 decimal places, not a whole number of
+tokens: a single short generation can cost fractions of a cent.
 
 ```typescript
-const balance = await vocea.users.credits();
-console.log(balance.creditsBalance); // e.g. 5000
+const { balance } = await vocea.users.balance();
+console.log(balance); // e.g. 10.42544375
 ```
 
 ### Manage your API key
@@ -224,7 +227,7 @@ console.log(voice.isPublic);
 console.log(voice.isFavorited);
 console.log(voice.favoritesCount);
 console.log(voice.timesUsed);
-console.log(voice.creditsEarnedTotal);
+console.log(voice.balanceEarnedTotal);
 ```
 
 ### Clone a voice
@@ -300,7 +303,7 @@ console.log(result.isFavorited); // true if now favorited, false if removed
 
 ### Request to make a voice public
 
-Submit your voice for review. Once approved, it will appear in the public voice library and you earn credits every time another user generates audio with it.
+Submit your voice for review. Once approved, it will appear in the public voice library and you earn balance every time another user generates audio with it.
 
 ```typescript
 await vocea.voices.requestPublic("voice-uuid");
@@ -311,11 +314,11 @@ await vocea.voices.requestPublic("voice-uuid");
 ```typescript
 const data = await vocea.voices.earnings("voice-uuid");
 
-console.log(data.creditsEarnedTotal);
+console.log(data.balanceEarnedTotal); // e.g. 1.205
 console.log(data.timesUsed);
 
 for (const entry of data.earnings) {
-  console.log(entry.month, entry.creditsEarned); // e.g. "2024-03", "120.00000000"
+  console.log(entry.month, entry.balanceEarned); // e.g. "2024-03", 0.42
 }
 ```
 
@@ -444,7 +447,7 @@ const result = await vocea.stt.transcribe(
 
 console.log(result.transcript);       // the transcribed text
 console.log(result.characterCount);   // number of characters in the transcript
-console.log(result.creditsConsumed);  // credits deducted for this request
+console.log(result.balanceConsumed);  // USD deducted from your balance
 console.log(result.durationMs);       // audio duration in milliseconds
 ```
 
@@ -470,18 +473,21 @@ await vocea.stt.deleteTranscription("transcription-uuid");
 
 ---
 
-## Credits (`vocea.credits`)
+## Balance (`vocea.balance`)
 
-Purchase credit packages and track usage history.
+Top up your USD balance and track its movements.
 
 ### List available packages
 
+A package adds exactly its `priceUsd` to your balance — there is no separate
+conversion rate.
+
 ```typescript
-const packages = await vocea.credits.listPackages();
+const packages = await vocea.balance.listPackages();
 
 for (const pkg of packages) {
   if (pkg.isActive) {
-    console.log(`${pkg.name}: ${pkg.credits} credits — $${pkg.priceUsd} USD`);
+    console.log(`${pkg.name}: adds $${pkg.priceUsd} to your balance`);
   }
 }
 ```
@@ -491,9 +497,9 @@ for (const pkg of packages) {
 Initiates a payment flow and returns a URL to redirect the user to.
 
 ```typescript
-const { checkoutUrl } = await vocea.credits.checkout(
+const { checkoutUrl } = await vocea.balance.checkout(
   "package-uuid",
-  "https://yourapp.com/credits/success", // optional redirect after payment
+  "https://yourapp.com/balance/success", // optional redirect after payment
 );
 
 // Redirect the user
@@ -504,25 +510,25 @@ window.location.href = checkoutUrl;
 
 ```typescript
 // All transactions, newest first
-const all = await vocea.credits.listTransactions({ page: 1, limit: 20 });
+const all = await vocea.balance.listTransactions({ page: 1, limit: 20 });
 
 // Filter by type
-const purchases    = await vocea.credits.listTransactions({ type: "purchase" });
-const consumption  = await vocea.credits.listTransactions({ type: "consumption" });
-const adjustments  = await vocea.credits.listTransactions({ type: "adjustment" });
+const purchases    = await vocea.balance.listTransactions({ type: "purchase" });
+const consumption  = await vocea.balance.listTransactions({ type: "consumption" });
+const adjustments  = await vocea.balance.listTransactions({ type: "adjustment" });
 
 for (const tx of all.items) {
-  console.log(`[${tx.type}] ${tx.amount > 0 ? "+" : ""}${tx.amount} credits — ${tx.description}`);
+  console.log(`[${tx.type}] ${tx.amount > 0 ? "+" : ""}${tx.amount} USD — ${tx.description}`);
 }
 ```
 
 **Transaction types:**
 
-| Type          | Description                                        |
-| ------------- | -------------------------------------------------- |
-| `purchase`    | Credits added via a successful payment             |
-| `consumption` | Credits deducted by TTS or STT API usage           |
-| `adjustment`  | Manual credit adjustment by the Vocea team         |
+| Type          | Description                              |
+| ------------- | ---------------------------------------- |
+| `purchase`    | Balance added via a successful payment   |
+| `consumption` | Balance deducted by TTS or STT API usage |
+| `adjustment`  | Manual adjustment by the Vocea team      |
 
 ---
 
@@ -552,7 +558,7 @@ try {
         // Invalid or missing API key
         break;
       case 402:
-        // Insufficient credits — prompt the user to purchase more
+        // Insufficient balance — prompt the user to top up
         break;
       case 404:
         // Resource not found (voice, audio, etc.)
@@ -571,18 +577,16 @@ try {
 
 All types are exported from the package root.
 
-> **Cambio en 0.2.0:** `Voice.creditsEarnedTotal` pasa de `number` a `string`.
-> La API siempre devolvió un decimal serializado (`"0.00000000"`); el tipo
-> anterior era incorrecto. Usa `Number(voice.creditsEarnedTotal)` para operar.
-> `Voice.langSet` queda deprecado: la API ya no lo envía.
+> **Breaking in 0.3.0:** the "credits" concept is gone — the platform only
+> tracks a USD balance. `vocea.credits` is now `vocea.balance`, routes moved
+> from `/credits/*` to `/balance/*`, and the fields `creditsBalance`,
+> `creditsEarned`, `creditsEarnedTotal` and `creditsConsumed` are now
+> `balance`, `balanceEarned`, `balanceEarnedTotal` and `balanceConsumed`.
+> All decimal fields are returned as numbers.
 >
-> **Not yet released:** `VoiceEarnings.creditsEarnedTotal` and
-> `CreditPackage.priceUsd` were also `number` but the API returns them as
-> decimal strings (e.g. `"0.00000000"`, `"7.99"`), the same ORM-serialization
-> issue as `Voice.creditsEarnedTotal` above. Both are now typed as `string`;
-> use `Number(...)` to operate on them. `VoiceEarnings.earnings[].creditsEarned`
-> was changed to `string` for consistency but hasn't been empirically verified
-> against the API (the sampled account had no earnings history).
+> The deprecated `vocea.users.credits()` alias and the `CreditsBalance` type
+> alias were removed; use `vocea.users.balance()` and `UsdBalance`.
+> `Voice.langSet` stays deprecated: the API no longer sends it.
 
 ```typescript
 import type {
@@ -596,7 +600,7 @@ import type {
 
   // Users
   User,
-  CreditsBalance,
+  UsdBalance,
   ApiKeyStatus,
   ApiKeyCreated,
 
@@ -618,8 +622,8 @@ import type {
   TranscribeResponse,
   Transcription,
 
-  // Credits
-  CreditPackage,
+  // Balance
+  BalancePackage,
   CheckoutResponse,
   Transaction,
 
