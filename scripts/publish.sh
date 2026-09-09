@@ -36,29 +36,51 @@ export NPM_CONFIG_USERCONFIG="$NPMRC_DIR/.npmrc"
 # lleva ignore-scripts=true, que también silencia prepublishOnly.
 pnpm run build
 
-# El token de npm tiene bypass_2fa=false, así que el registro exige un OTP en
-# cada escritura. Cuando pnpm no lo recibe, arranca su flujo de autenticación
-# web (imprime una URL y un QR) y aborta con ERR_PNPM_WEBAUTH_TIMEOUT antes de
-# que dé tiempo a teclear contraseña y segundo factor. Por eso lo pedimos aquí:
-# el código viaja en la cabecera de la petición y el flujo web no llega a
-# arrancar.
+# La publicación la hace npm, no pnpm.
 #
-# Solo se pregunta si hay terminal y si no se pasó --otp a mano. En CI no hay
-# TTY, no se pregunta, y la publicación va por OIDC (.github/workflows/publish.yml),
-# que no necesita ni token ni segundo factor.
-OTP_EN_ARGS=no
-for arg in "$@"; do
+# El token tiene bypass_2fa=false, así que el registro exige autenticación
+# adicional en cada escritura. pnpm resuelve eso abriendo un flujo web (imprime
+# una URL y un QR) cuya ventana de espera es demasiado corta para teclear
+# contraseña y segundo factor: siempre acaba en ERR_PNPM_WEBAUTH_TIMEOUT. npm
+# hace el mismo flujo con una ventana mucho más amplia, y es además el único
+# camino cuando la cuenta usa passkey en vez de códigos TOTP, porque entonces no
+# existe ningún --otp válido que pasar.
+#
+# Cambiar de gestor aquí es inocuo: el paquete no tiene dependencias, así que no
+# hay ningún "workspace:" que solo pnpm sepa resolver, y `npm pack` produce
+# exactamente los mismos 6 ficheros.
+#
+# Dentro de un script no existe el alias `npm=pnpm` del shell interactivo, así
+# que este `npm` es el binario real.
+
+# --no-git-checks es una bandera de pnpm. Como npm no la conoce, aquí se traduce
+# a saltarse las comprobaciones que pnpm hacía y no se le pasa a npm.
+COMPROBAR_GIT=si
+N=$#
+I=0
+while [ "$I" -lt "$N" ]; do
+  arg=$1
+  shift
   case "$arg" in
-    --otp | --otp=*) OTP_EN_ARGS=si ;;
+    --no-git-checks) COMPROBAR_GIT=no ;;
+    *) set -- "$@" "$arg" ;;
   esac
+  I=$((I + 1))
 done
 
-if [ "$OTP_EN_ARGS" = no ] && [ -t 0 ]; then
-  printf 'Código de 6 dígitos de tu app de autenticación (Enter para omitir): '
-  read -r OTP || OTP=''
-  if [ -n "$OTP" ]; then
-    set -- "$@" "--otp=$OTP"
+# pnpm publish se negaba a publicar fuera de main o con cambios sin commitear.
+# npm no comprueba nada, así que la guarda se reproduce a mano: publicar una
+# versión que no está en el repositorio deja una release imposible de reproducir.
+if [ "$COMPROBAR_GIT" = si ]; then
+  RAMA=$(git rev-parse --abbrev-ref HEAD)
+  if [ "$RAMA" != main ]; then
+    echo "Estás en '$RAMA', no en main. Usa --no-git-checks si es deliberado." >&2
+    exit 1
+  fi
+  if [ -n "$(git status --porcelain -uall)" ]; then
+    echo "Hay cambios sin commitear. Usa --no-git-checks si es deliberado." >&2
+    exit 1
   fi
 fi
 
-pnpm publish --access public "$@"
+npm publish --access public "$@"
