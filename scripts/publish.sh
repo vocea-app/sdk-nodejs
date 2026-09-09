@@ -36,4 +36,29 @@ export NPM_CONFIG_USERCONFIG="$NPMRC_DIR/.npmrc"
 # lleva ignore-scripts=true, que también silencia prepublishOnly.
 pnpm run build
 
+# El token de npm tiene bypass_2fa=false, así que el registro exige un OTP en
+# cada escritura. Cuando pnpm no lo recibe, arranca su flujo de autenticación
+# web (imprime una URL y un QR) y aborta con ERR_PNPM_WEBAUTH_TIMEOUT antes de
+# que dé tiempo a teclear contraseña y segundo factor. Por eso lo pedimos aquí:
+# el código viaja en la cabecera de la petición y el flujo web no llega a
+# arrancar.
+#
+# Solo se pregunta si hay terminal y si no se pasó --otp a mano. En CI no hay
+# TTY, no se pregunta, y la publicación va por OIDC (.github/workflows/publish.yml),
+# que no necesita ni token ni segundo factor.
+OTP_EN_ARGS=no
+for arg in "$@"; do
+  case "$arg" in
+    --otp | --otp=*) OTP_EN_ARGS=si ;;
+  esac
+done
+
+if [ "$OTP_EN_ARGS" = no ] && [ -t 0 ]; then
+  printf 'Código de 6 dígitos de tu app de autenticación (Enter para omitir): '
+  read -r OTP || OTP=''
+  if [ -n "$OTP" ]; then
+    set -- "$@" "--otp=$OTP"
+  fi
+fi
+
 pnpm publish --access public "$@"
