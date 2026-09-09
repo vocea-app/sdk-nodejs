@@ -173,6 +173,15 @@ export interface Voice {
 export interface CloneVoiceRequest {
   name: string;
   audio_sample: Blob | Buffer | File | Array<Blob | Buffer | File>;
+  /**
+   * Proveedores en los que clonar la voz. Al menos uno; se pueden indicar
+   * varios para tener la misma voz en varias calidades.
+   *
+   * Los ids salen de `vocea.providers.list()`. Es obligatorio: omitirlo
+   * devuelve 400 con `PROVIDERS_REQUIRED`. Antes el servidor clonaba en todos
+   * los proveedores activos, ocupando plazas que nadie había pedido.
+   */
+  providerIds: string[];
   sample_text?: string;
   language_code?: string;
 }
@@ -208,19 +217,32 @@ export interface VoiceSettings {
 }
 
 /**
- * Parámetros avanzados por proveedor.
+ * Parámetros avanzados de generación. Cada calidad admite los suyos, y enviar
+ * uno que no le corresponde devuelve 400 con `INVALID_ADVANCED_PARAMS`.
  *
- * - Inworld (standard): `expressiveness` (0-100)
- * - Minimax (premium): `pitch` (-100 a 100, en semitonos), `volume` (0-100), `emotion`
- * - ElevenLabs (studio): `stability` (0-100), `clarity` (0-100), `style` (0-100)
+ * Casi todos van de 0 a 100 y el servidor los convierte a la escala nativa del
+ * proveedor. `pitch` es la excepción: son semitonos reales, no un porcentaje.
+ *
+ * | Calidad             | Parámetros                          |
+ * |---------------------|-------------------------------------|
+ * | standard (Inworld)  | `expressiveness`                    |
+ * | premium (Minimax)   | `pitch`, `volume`, `emotion`        |
+ * | studio (ElevenLabs) | `stability`, `clarity`, `style`     |
  */
 export interface AdvancedParams {
+  /** standard. 0–100, por defecto 50. Bajo lee estable; alto, más expresivo y menos predecible. */
   expressiveness?: number;
+  /** premium. Semitonos enteros de −12 a 12, por defecto 0. No es un porcentaje. */
   pitch?: number;
+  /** premium. 0–100, por defecto 50. */
   volume?: number;
+  /** premium. Por defecto `neutral`. */
   emotion?: Emotion;
+  /** studio. 0–100, por defecto 50. Alto suena uniforme entre tomas; bajo, más variado. */
   stability?: number;
+  /** studio. 0–100, por defecto 75. Cuánto se ciñe el resultado a la voz clonada. */
   clarity?: number;
+  /** studio. 0–100, por defecto 0. Subirlo aumenta la latencia de generación. */
   style?: number;
   [key: string]: unknown;
 }

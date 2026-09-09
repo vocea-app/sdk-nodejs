@@ -242,13 +242,18 @@ console.log(voice.balanceEarnedTotal);
 
 Upload one or more audio samples to create a new cloned voice. The voice starts with `status: "pending"` while it is being processed and transitions to `"active"` when ready.
 
+`providerIds` is required: pick at least one provider to clone into. Each one
+gives you the voice at that quality tier, and you can pass several to have the
+same voice available in more than one. Get the ids from `vocea.providers.list()`.
+
 ```typescript
 import { readFileSync } from "fs";
 
-// Single sample
+// Single sample, single provider
 const voice = await vocea.voices.clone({
   name: "My Voice",
   audio_sample: new Blob([readFileSync("sample.mp3")], { type: "audio/mpeg" }),
+  providerIds: ["provider-uuid"],                  // required, at least one
   language_code: "es",                             // optional, helps the model
   sample_text: "Hola, esta es una frase de muestra.", // optional
 });
@@ -258,7 +263,8 @@ console.log(voice.status); // "pending" — poll until it becomes "active"
 ```
 
 ```typescript
-// Multiple samples — produces better voice quality
+// Multiple samples produce better quality; multiple providers give you the
+// same voice in several tiers.
 const voice = await vocea.voices.clone({
   name: "My Voice HD",
   audio_sample: [
@@ -266,6 +272,41 @@ const voice = await vocea.voices.clone({
     new Blob([readFileSync("sample2.mp3")], { type: "audio/mpeg" }),
     new Blob([readFileSync("sample3.mp3")], { type: "audio/mpeg" }),
   ],
+  providerIds: ["provider-a", "provider-b"],
+});
+```
+
+Omitting `providerIds` returns `400 PROVIDERS_REQUIRED`, and an unknown or
+inactive id returns `400 PROVIDER_NOT_AVAILABLE`.
+
+### Advanced generation parameters
+
+Each quality tier accepts its own parameters. Sending one that does not belong
+to the tier returns `400 INVALID_ADVANCED_PARAMS` naming the offending key —
+previously unknown keys were dropped silently and the audio came back with
+default settings.
+
+| Tier                  | Parameter        | Range                    | Default |
+|-----------------------|------------------|--------------------------|---------|
+| `standard` (Inworld)  | `expressiveness` | 0–100                    | 50      |
+| `premium` (Minimax)   | `pitch`          | −12 to 12, **integer**   | 0       |
+|                       | `volume`         | 0–100                    | 50      |
+|                       | `emotion`        | see the emotion table    | neutral |
+| `studio` (ElevenLabs) | `stability`      | 0–100                    | 50      |
+|                       | `clarity`        | 0–100                    | 75      |
+|                       | `style`          | 0–100                    | 0       |
+
+Everything is on a 0–100 scale and the API converts it to each provider's native
+range. `pitch` is the one exception: it is a real semitone count, not a
+percentage, so it runs from −12 to 12 and must be a whole number.
+
+```typescript
+const audio = await vocea.audios.generate({
+  voice_id: "voice-uuid",
+  tts_model_id: "model-uuid",
+  text: "Hola, ¿cómo estás?",
+  speed: 1.0,                                   // 0.5–1.5, every tier
+  advanced_params: { stability: 40, clarity: 80 }, // studio voice
 });
 ```
 
@@ -591,6 +632,21 @@ try {
 ## TypeScript Types
 
 All types are exported from the package root.
+
+> **Breaking in 0.4.0:** `voices.clone()` now requires `providerIds`, with at
+> least one provider. Omitting it used to make the API clone into *every*
+> active provider, taking pool slots nobody asked for; it now returns
+> `400 PROVIDERS_REQUIRED`, and an unknown or inactive id returns
+> `400 PROVIDER_NOT_AVAILABLE`.
+>
+> `advanced_params` is validated too. Unknown keys and out-of-range values used
+> to be dropped in silence — the audio came back with default settings while
+> you were billed for it — and now return `400 INVALID_ADVANCED_PARAMS`. If you
+> were sending a key that never did anything, this is where you find out.
+>
+> The documented range for `pitch` was wrong: it is −12 to 12 **integer**
+> semitones, not −100 to 100. That value reaches the provider unscaled, so
+> anything outside that range was already being rejected upstream.
 
 > **Breaking in 0.3.0:** the "credits" concept is gone — the platform only
 > tracks a USD balance. `vocea.credits` is now `vocea.balance`, routes moved

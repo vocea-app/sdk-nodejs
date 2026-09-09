@@ -27,7 +27,11 @@ describe("VoicesResource", () => {
   it("clone manda name y un audio_sample en FormData", async () => {
     const { calls } = mockFetch({ json: { id: "v1" } });
     const muestra = new Blob([new Uint8Array([1, 2, 3])], { type: "audio/mpeg" });
-    await createClient().voices.clone({ name: "Mi voz", audio_sample: muestra });
+    await createClient().voices.clone({
+      name: "Mi voz",
+      audio_sample: muestra,
+      providerIds: ["prov-1"],
+    });
 
     const form = calls[0].body as FormData;
     expect(form).toBeInstanceOf(FormData);
@@ -39,7 +43,11 @@ describe("VoicesResource", () => {
     const { calls } = mockFetch({ json: { id: "v1" } });
     const a = new Blob([new Uint8Array([1])], { type: "audio/mpeg" });
     const b = new Blob([new Uint8Array([2])], { type: "audio/mpeg" });
-    await createClient().voices.clone({ name: "Mi voz", audio_sample: [a, b] });
+    await createClient().voices.clone({
+      name: "Mi voz",
+      audio_sample: [a, b],
+      providerIds: ["prov-1"],
+    });
 
     const form = calls[0].body as FormData;
     expect(form.getAll("audio_sample")).toHaveLength(2);
@@ -50,6 +58,7 @@ describe("VoicesResource", () => {
     await createClient().voices.clone({
       name: "Mi voz",
       audio_sample: new Blob([new Uint8Array([1])]),
+    providerIds: ["prov-1"],
     });
 
     const form = calls[0].body as FormData;
@@ -62,6 +71,7 @@ describe("VoicesResource", () => {
     await createClient().voices.clone({
       name: "Mi voz",
       audio_sample: new Blob([new Uint8Array([1])]),
+      providerIds: ["prov-1"],
       sample_text: "Hola",
       language_code: "es",
     });
@@ -69,6 +79,21 @@ describe("VoicesResource", () => {
     const form = calls[0].body as FormData;
     expect(form.get("sample_text")).toBe("Hola");
     expect(form.get("language_code")).toBe("es");
+  });
+
+  it("clone envía un providerIds por cada proveedor indicado", async () => {
+    const { calls } = mockFetch({ json: { id: "v1" } });
+    await createClient().voices.clone({
+      name: "Mi voz",
+      audio_sample: new Blob([new Uint8Array([1])]),
+      providerIds: ["prov-a", "prov-b"],
+    });
+
+    // Viajan como partes repetidas del multipart, que es como la API
+    // recibe listas. Una sola parte "prov-a,prov-b" también la acepta el
+    // servidor, pero repetirlas es lo que hacen los otros SDK.
+    const form = calls[0].body as FormData;
+    expect(form.getAll("providerIds")).toEqual(["prov-a", "prov-b"]);
   });
 
   it("update cambia solo el nombre", async () => {

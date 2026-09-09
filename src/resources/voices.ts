@@ -44,6 +44,8 @@ export class VoicesResource {
     form.append("name", req.name);
     const samples = Array.isArray(req.audio_sample) ? req.audio_sample : [req.audio_sample];
     for (const s of samples) form.append("audio_sample", s as Blob);
+    // Se repiten como partes del multipart, que es como la API recibe listas.
+    for (const id of req.providerIds) form.append("providerIds", id);
     if (req.sample_text) form.append("sample_text", req.sample_text);
     if (req.language_code) form.append("language_code", req.language_code);
     return this.http.request("POST", "/voices/clone", { form });
