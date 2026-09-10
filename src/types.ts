@@ -127,8 +127,19 @@ export interface VoiceProvider {
   provider_id: string;
   /** `inworld` (Standard), `minimax` (Premium), `elevenlabs` (Studio). */
   name: string;
+  /**
+   * Interruptor del dueño para OTROS usuarios de una voz pública. No
+   * restringe al dueño: sobre sus propias voces puede generar aunque esté a
+   * false.
+   */
   is_enabled: boolean;
-  /** La voz está físicamente clonada en este proveedor y se puede usar. */
+  /**
+   * La voz está materializada en este proveedor AHORA MISMO. No es un
+   * permiso: la API clona bajo demanda en la primera generación (unos 10 s
+   * extra, y entonces pasa a true), y libera el proveedor tras 15 días sin
+   * uso. Es decir, `false` es el estado normal de una voz en reposo, no un
+   * impedimento: no filtres proveedores por este campo.
+   */
   is_cloned: boolean;
   last_used_at: string | null;
   has_sample_preview: boolean;
