@@ -17,6 +17,17 @@ export interface RegisterRequest {
   password: string;
   birth_year: number;
   referral_code?: string;
+  /**
+   * Aceptación expresa de los Términos de Servicio y la Política de Privacidad
+   * de Vocea. Debe pasarse `true` solo cuando la persona que se registra los
+   * ha leído y aceptado: el SDK nunca lo establece por ella.
+   *
+   * Opcional por compatibilidad: si no es `true`, el cuerpo de la petición no
+   * lleva el campo. Cuando el backend lo exija, omitirlo producirá un
+   * `VoceaError` 400/422 con el mensaje del servidor. En el cable viaja como
+   * `accept_terms`.
+   */
+  accept_terms?: boolean;
 }
 
 // ─── Users ─────────────────────────────────────────────────────────────────

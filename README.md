@@ -69,8 +69,37 @@ await vocea.auth.register({
   password: "securePassword123",
   birth_year: 1990,
   referral_code: "FRIEND2024", // optional
+  accept_terms: true, // only if the person has accepted the Terms — see below
 });
 // Returns: { message: "Registration successful" }
+```
+
+#### Accepting the Terms of Service
+
+Vocea Speech is moving to require the person who signs up to expressly accept
+the **Terms of Service and the Privacy Policy of Vocea**. The SDK supports this
+with the optional `accept_terms` option:
+
+- Pass `accept_terms: true` **only** when the person has read and accepted the
+  Terms of Service and the Privacy Policy. Accepting is an act of the person:
+  the SDK never accepts on their behalf and there is no default value. Any
+  value other than `true` (including leaving it out) sends nothing.
+- When `accept_terms` is `true`, the request carries `accept_terms: true`. When
+  it is not passed, the request body is exactly what it was before, so this
+  version keeps working against a backend that does not know the field yet.
+- While the backend does not require it, `accept_terms` is optional. Once it
+  does, registering without it fails with a `VoceaError` (HTTP 400/422) whose
+  message is the server's: *"Debes aceptar los Términos de Servicio y la
+  Política de Privacidad"*.
+
+```typescript
+try {
+  await vocea.auth.register({ /* ... */ }); // without accept_terms
+} catch (err) {
+  if (err instanceof VoceaError && (err.statusCode === 400 || err.statusCode === 422)) {
+    console.error(err.message); // includes the server's message about the Terms
+  }
+}
 ```
 
 ### Log in
@@ -140,7 +169,8 @@ console.log(user.balance); // USD, same value as vocea.users.balance()
 The profile comes back in **camelCase** (`fullName`, `preferredLanguage`). The
 request bodies you send — `auth.register()` and `users.update()` — stay in
 snake_case, because that is what the API validates. Both shapes are correct;
-they are simply not the same shape.
+they are simply not the same shape. (`auth.register()` also
+takes `accept_terms`, see below.)
 
 ### Update your profile
 

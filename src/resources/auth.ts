@@ -5,7 +5,13 @@ export class AuthResource {
   constructor(private http: HttpClient) {}
 
   register(body: RegisterRequest): Promise<{ message: string }> {
-    return this.http.request("POST", "/auth/register", { json: body });
+    // `accept_terms` solo se envía cuando es exactamente `true`. Sin él (o con
+    // `false`) el cuerpo es idéntico al de siempre: el backend actual rechaza
+    // propiedades desconocidas. Nunca hay un valor por omisión: aceptar los
+    // términos es un acto de la persona.
+    const { accept_terms, ...resto } = body;
+    const json = accept_terms === true ? { ...resto, accept_terms: true } : resto;
+    return this.http.request("POST", "/auth/register", { json });
   }
 
   login(body: LoginRequest): Promise<LoginResponse> {
