@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { VoceaError } from "../../src/index.js";
 import { createClient, mockFetch } from "../helpers.js";
 
 describe("AuthResource", () => {
@@ -15,6 +16,83 @@ describe("AuthResource", () => {
     expect(calls[0].url).toBe("https://api.test/v1/auth/register");
     expect(JSON.parse(calls[0].body as string)).toEqual(body);
   });
+
+  it("register sin acceptTerms envía el cuerpo de siempre, sin accept_terms", async () => {
+    const { calls } = mockFetch({ json: { message: "ok" } });
+    await createClient().auth.register({
+      full_name: "María García",
+      email: "m@test.com",
+      password: "secreto",
+      birth_year: 1990,
+      referral_code: "AMIGO",
+    });
+    const enviado = JSON.parse(calls[0].body as string);
+    expect(enviado).toEqual({
+      full_name: "María García",
+      email: "m@test.com",
+      password: "secreto",
+      birth_year: 1990,
+      referral_code: "AMIGO",
+    });
+    expect("accept_terms" in enviado).toBe(false);
+    expect("acceptTerms" in enviado).toBe(false);
+  });
+
+  it("register con acceptTerms: true envía accept_terms: true (y no acceptTerms)", async () => {
+    const { calls } = mockFetch({ json: { message: "ok" } });
+    await createClient().auth.register({
+      full_name: "María García",
+      email: "m@test.com",
+      password: "secreto",
+      birth_year: 1990,
+      acceptTerms: true,
+    });
+    const enviado = JSON.parse(calls[0].body as string);
+    expect(enviado).toEqual({
+      full_name: "María García",
+      email: "m@test.com",
+      password: "secreto",
+      birth_year: 1990,
+      accept_terms: true,
+    });
+    expect("acceptTerms" in enviado).toBe(false);
+  });
+
+  it("register con acceptTerms: false no envía el campo: nunca se acepta por omisión", async () => {
+    const { calls } = mockFetch({ json: { message: "ok" } });
+    await createClient().auth.register({
+      full_name: "María García",
+      email: "m@test.com",
+      password: "secreto",
+      birth_year: 1990,
+      acceptTerms: false,
+    });
+    const enviado = JSON.parse(calls[0].body as string);
+    expect("accept_terms" in enviado).toBe(false);
+    expect("acceptTerms" in enviado).toBe(false);
+  });
+
+  it.each([400, 422])(
+    "register sin aceptar los términos: el %i del servidor llega como VoceaError con su mensaje",
+    async (status) => {
+      const mensaje = "Debes aceptar los Términos de Servicio y la Política de Privacidad";
+      mockFetch({
+        status,
+        json: { statusCode: status, message: [mensaje], error: "Bad Request" },
+      });
+      const err = await createClient()
+        .auth.register({
+          full_name: "María García",
+          email: "m@test.com",
+          password: "secreto",
+          birth_year: 1990,
+        })
+        .catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(VoceaError);
+      expect((err as VoceaError).statusCode).toBe(status);
+      expect((err as VoceaError).message).toContain(mensaje);
+    },
+  );
 
   it("login devuelve el token de acceso", async () => {
     mockFetch({ json: { access_token: "jwt", user: { id: "1", email: "m@test.com" } } });
