@@ -17,7 +17,7 @@ describe("AuthResource", () => {
     expect(JSON.parse(calls[0].body as string)).toEqual(body);
   });
 
-  it("register sin acceptTerms envía el cuerpo de siempre, sin accept_terms", async () => {
+  it("register sin accept_terms envía el cuerpo de siempre, sin accept_terms", async () => {
     const { calls } = mockFetch({ json: { message: "ok" } });
     await createClient().auth.register({
       full_name: "María García",
@@ -35,17 +35,16 @@ describe("AuthResource", () => {
       referral_code: "AMIGO",
     });
     expect("accept_terms" in enviado).toBe(false);
-    expect("acceptTerms" in enviado).toBe(false);
   });
 
-  it("register con acceptTerms: true envía accept_terms: true (y no acceptTerms)", async () => {
+  it("register con accept_terms: true envía accept_terms: true", async () => {
     const { calls } = mockFetch({ json: { message: "ok" } });
     await createClient().auth.register({
       full_name: "María García",
       email: "m@test.com",
       password: "secreto",
       birth_year: 1990,
-      acceptTerms: true,
+      accept_terms: true,
     });
     const enviado = JSON.parse(calls[0].body as string);
     expect(enviado).toEqual({
@@ -55,21 +54,19 @@ describe("AuthResource", () => {
       birth_year: 1990,
       accept_terms: true,
     });
-    expect("acceptTerms" in enviado).toBe(false);
   });
 
-  it("register con acceptTerms: false no envía el campo: nunca se acepta por omisión", async () => {
+  it("register con accept_terms: false no envía el campo: nunca se acepta por omisión", async () => {
     const { calls } = mockFetch({ json: { message: "ok" } });
     await createClient().auth.register({
       full_name: "María García",
       email: "m@test.com",
       password: "secreto",
       birth_year: 1990,
-      acceptTerms: false,
+      accept_terms: false,
     });
     const enviado = JSON.parse(calls[0].body as string);
     expect("accept_terms" in enviado).toBe(false);
-    expect("acceptTerms" in enviado).toBe(false);
   });
 
   it.each([400, 422])(

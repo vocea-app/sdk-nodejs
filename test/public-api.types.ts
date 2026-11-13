@@ -51,11 +51,11 @@ export type SuperficieDeTipos = {
   voceaErrorBody: VoceaErrorBody;
 };
 
-// `acceptTerms` es opcional (no rompe a quien ya llama a register) y booleano.
+// `accept_terms` es opcional (no rompe a quien ya llama a register) y booleano.
 const _registroSinTerminos: RegisterRequest = {
   full_name: "a", email: "a@b.c", password: "x", birth_year: 1990,
 };
-const _registroConTerminos: RegisterRequest = { ..._registroSinTerminos, acceptTerms: true };
+const _registroConTerminos: RegisterRequest = { ..._registroSinTerminos, accept_terms: true };
 export const _tiposDeRegistro: [RegisterRequest, RegisterRequest] = [
   _registroSinTerminos,
   _registroConTerminos,

@@ -27,7 +27,7 @@ export interface RegisterRequest {
    * `VoceaError` 400/422 con el mensaje del servidor. En el cable viaja como
    * `accept_terms`.
    */
-  acceptTerms?: boolean;
+  accept_terms?: boolean;
 }
 
 // ─── Users ─────────────────────────────────────────────────────────────────

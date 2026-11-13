@@ -5,12 +5,12 @@ export class AuthResource {
   constructor(private http: HttpClient) {}
 
   register(body: RegisterRequest): Promise<{ message: string }> {
-    // `acceptTerms` no viaja tal cual: en la API es `accept_terms` y solo se
-    // envía cuando es exactamente `true`. Sin él el cuerpo es idéntico al de
-    // siempre (el backend actual rechaza propiedades desconocidas). Nunca hay
-    // un valor por omisión: aceptar los términos es un acto de la persona.
-    const { acceptTerms, ...resto } = body;
-    const json = acceptTerms === true ? { ...resto, accept_terms: true } : resto;
+    // `accept_terms` solo se envía cuando es exactamente `true`. Sin él (o con
+    // `false`) el cuerpo es idéntico al de siempre: el backend actual rechaza
+    // propiedades desconocidas. Nunca hay un valor por omisión: aceptar los
+    // términos es un acto de la persona.
+    const { accept_terms, ...resto } = body;
+    const json = accept_terms === true ? { ...resto, accept_terms: true } : resto;
     return this.http.request("POST", "/auth/register", { json });
   }
 
